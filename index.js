@@ -10,6 +10,12 @@ const mongoose = require('mongoose') // para trabalhar com nossa database
 const port = process.env.PORT || 8000 // configurando a porta do serviço
 const User = require('./domain/user')
 
+const gdrive = require("./gdrive");
+
+const fs = require('fs');
+const readline = require('readline');
+const {google} = require('googleapis');
+
 mongoose.connect('mongodb://root:123456a@ds127429.mlab.com:27429/user', { useNewUrlParser: true })
 mongoose.set('useCreateIndex', true);
 //mongoose.connect('mongodb://localhost:27017/db_name');
@@ -81,6 +87,11 @@ var middlewarePost = function (req, res, next) {
   apiRouter.route('/users')
   // criar usuário (POST http://localhost:8000/api/users)
   .post(middlewarePost, function (req, res) { 
+
+    
+    gdrive.imageUpload("photo.jpeg", "./files/photo.jpeg", (id) => {
+        console.log(id);
+    });
       
     // criar uma nova instância do Usuário
     var user = new User()
@@ -156,9 +167,6 @@ apiRouter.route('/users/:id')
 
   // rotas terminadas em /users
 // ----------------------------------------------------
-
-
-//--------------------------------------//
 
 // REGISTRANDO AS ROTAS -------------------------------
 // as rotas serão prefixadas com /api
