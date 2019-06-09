@@ -31,9 +31,12 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,Authorization')
     next()
 })
+
 // logando as requisições no console
 app.use(morgan('dev'))
 
+// ROTAS PARA API
+// =============================
 
 // pegando uma instância do express router
 const apiRouter = express.Router()
@@ -45,15 +48,22 @@ app.get('/', (req, res) => {
 
 // middleware usado por todas as requisições
 apiRouter.use(function (req, res, next) {
-    //console.log('foi feita uma requisição para nossa API!')
+
+    console.log('foi feita uma requisição para nossa API!')
+
+    // vamos adicionar mais coisas aqui mais tardez
+    // é aqui que vamos varificar a autenticação dos usuários
+
     next() // garantir que vamos para a próxima rota
 })
 
+// roteamento de teste
 // acesse GET http://localhost:8000/api
 apiRouter.get('/', (req, res) => {
     res.json({ message: 'essa é nossa api!' })
 })
 
+//--------------------------------------//
 var middlewarePost = function (req, res, next) {
   console.log('antes do post!')
   
@@ -62,9 +72,17 @@ var middlewarePost = function (req, res, next) {
   }else{
     res.status(400).json({message:"A senha deve ter 6 caracteres."}) 
   }
+  
+  // get param :xqdele
+  //req.params.xqdele
+
+  // get others param URL
+  // localhost:8080/user?filter=name
+  // console.log(req.query.name)
 }
 
 // rotas terminadas em /users
+// ----------------------------------------------------
   apiRouter.route('/users')
   // criar usuário (POST http://localhost:8000/api/users)
   .post(middlewarePost, function (req, res) { 
@@ -103,20 +121,24 @@ var middlewarePost = function (req, res, next) {
   })
 
   let city = ""
-  let prevision = 1
   var middlewareTempo = function (req, res, next) {
 
+    //if(req.query.cidade != null || req.query.cidade != "" || req.query.cidade != undefined){
+      
     if(!req.query.city){
       res.status(403).json({message: "Nao tem cidade na request!"})
     }else{
-      if(!req.query.prevision){
-        prevision = 1
-      }else{
-        prevision = req.query.prevision
-      }
+      console.log("Cidade: "+ req.query.city)
       city = req.query.city
       next()
     }
+    
+    // get param :xqdele
+    //req.params.xqdele
+  
+    // get others param URL
+    // localhost:8080/user?filter=name
+    // console.log(req.query.name)
   }
 
   apiRouter.route('/tempo')
@@ -127,19 +149,14 @@ var middlewarePost = function (req, res, next) {
 
         let id = result.data[0].woeid
         const result2 = await axios.get("https://www.metaweather.com/api/location/" + id)
+        
+        console.log("Tempo: " + result2.data.consolidated_weather[0].weather_state_name)
 
-        var element = []
         if (res.status(200)){
-
-          for (let index = 0; index < prevision; index++) {
-            element.push({
-              weather_state: result2.data.consolidated_weather[index].weather_state_name,
-              date: result2.data.consolidated_weather[index].applicable_date
-            })
-            
-          }
-
-          res.status(200).json({status: 200, city: city ,previsions: element})
+          res.status(200).json({
+              status: 200, 
+              weather_state: result2.data.consolidated_weather[0].weather_state_name,
+              date: result2.data.consolidated_weather[0].applicable_date})
         }else{
           res.status(500).json({message:"Algo deu errado!"}) 
         }
@@ -186,20 +203,14 @@ apiRouter.route('/users/:id')
     })
   })
 
+  // rotas terminadas em /users
+// ----------------------------------------------------
 
-function fazAlgo(num1, num2) {
-
-  return num1 + num2
-  
-}
-
-module.exports = {fazAlgo, app}
-
+// REGISTRANDO AS ROTAS -------------------------------
 // as rotas serão prefixadas com /api
 app.use('/api', apiRouter)
 
 // INICIANDO O SERVIÇO
 // ===============================
 app.listen(port)
-
 console.log('A mágica acontece na porta ' + port)
