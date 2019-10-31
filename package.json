@@ -16,7 +16,7 @@
     "express": "^4.17.1",
     "google-auth": "0.0.1",
     "googleapis": "^39.2.0",
-    "mongoose": "^5.5.11",
+    "mongoose": "^5.7.5",
     "morgan": "^1.9.1",
     "supertest": "^4.0.2",
     "tap-spec": "^5.0.0",
